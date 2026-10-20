@@ -1,0 +1,29 @@
+{
+  "name": "playwright-api-testing-hw",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Homework skeleton: API Testing with Playwright (Teach UA / Навчай українською)",
+  "scripts": {
+    "test": "playwright test",
+    "test:api": "playwright test --project=api",
+    "test:api-ui": "playwright test --project=api-ui",
+    "report": "playwright show-report",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "npm run format:check && npm run lint"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.54.2",
+    "@types/node": "^22.17.0",
+    "dotenv": "^16.6.1",
+    "eslint": "^10.8.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-playwright": "^2.11.0",
+    "prettier": "^3.9.6",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.66.0"
+  }
+}

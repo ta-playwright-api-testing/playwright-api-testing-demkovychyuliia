@@ -14,22 +14,27 @@ const credentials = {
 };
 
 test.describe('POST /api/signin', () => {
-  test.skip('should sign in and return accessToken', async ({ request }) => {
+  test('should sign in and return accessToken', async ({ request }) => {
     const authApi = new AuthApi(request);
 
-    // TODO: signIn(credentials)
-    // TODO: статус успіху, є accessToken, id, email
+    const response = await authApi.signInRaw(credentials);
+    expect(response.ok()).toBeTruthy();
 
-    expect(authApi).toBeDefined();
-    expect(credentials.email).toBeTruthy();
+    const login = await authApi.signIn(credentials);
+
+    expect(login.accessToken).toBeTruthy();
+    expect(login.id).toBeDefined();
+    expect(login.email).toBe(credentials.email);
   });
 
-  test.skip('should reject invalid password', async ({ request }) => {
+  test('should reject invalid password', async ({ request }) => {
     const authApi = new AuthApi(request);
 
-    // TODO: signInRaw з невірним паролем
-    // TODO: статус >= 400 (не хардкодьте 401, якщо API віддає 400)
+    const response = await authApi.signInRaw({
+      ...credentials,
+      password: 'invalid_password',
+    });
 
-    expect(authApi).toBeDefined();
+    expect(response.status()).toBeGreaterThanOrEqual(400);
   });
 });

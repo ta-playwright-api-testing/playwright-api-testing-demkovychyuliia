@@ -21,24 +21,54 @@ test.describe('PUT /api/user/{id}', () => {
 
   test.beforeEach(async ({ request }) => {
     const authApi = new AuthApi(request);
-    // TODO: loginViaApi / authApi.signIn → accessToken, userId
-    accessToken = '';
-    userId = 0;
-    void authApi;
-    void credentials;
+
+    const login = await authApi.signIn(credentials);
+
+    accessToken = login.accessToken;
+    userId = login.id;
   });
 
-  test.skip('should update phone via PUT and verify via GET', async ({ request }) => {
+  test('should update phone via PUT and verify via GET', async ({ request }) => {
     const userProfileApi = new UserProfileApi(request);
 
-    // TODO: GET профіль
-    // TODO: PUT з тими самими email, firstName, lastName, roleName і новим phone
-    // TODO: updateUserProfile() повертає newPhoneNumber
-    // TODO: повторний GET — phone збігається
-    // TODO: restore original phone (finally)
+    // GET — отримуємо поточний профіль користувача.
+    const originalProfile = await userProfileApi.getById(accessToken, userId);
+    const originalPhone = originalProfile.phone ?? '';
 
-    expect(userProfileApi).toBeDefined();
-    expect(accessToken).toBeDefined();
-    expect(userId).toBeDefined();
+    // Генеруємо новий номер телефону.
+    const newPhoneNumber = `+38067${Date.now().toString().slice(-7)}`;
+
+    try {
+      // PUT — змінюємо телефон, зберігаючи інші поля профілю.
+      const updatedPhone = await userProfileApi.updateUserProfile(accessToken, userId, {
+        email: originalProfile.email,
+        firstName: originalProfile.firstName,
+        lastName: originalProfile.lastName,
+        roleName: originalProfile.roleName,
+        phone: newPhoneNumber,
+        urlLogo: originalProfile.urlLogo,
+        status: originalProfile.status,
+      });
+
+      // Перевіряємо результат методу.
+      expect(updatedPhone).toBe(newPhoneNumber);
+
+      // GET — перевіряємо оновлений профіль.
+      const updatedProfile = await userProfileApi.getById(accessToken, userId);
+
+      expect(updatedProfile.phone).toBe(newPhoneNumber);
+      expect(updatedProfile.status).toBe(originalProfile.status);
+    } finally {
+      // PUT — відновлюємо початковий телефон та інші поля профілю.
+      await userProfileApi.updateUserProfile(accessToken, userId, {
+        email: originalProfile.email,
+        firstName: originalProfile.firstName,
+        lastName: originalProfile.lastName,
+        roleName: originalProfile.roleName,
+        phone: originalPhone,
+        urlLogo: originalProfile.urlLogo,
+        status: originalProfile.status,
+      });
+    }
   });
 });
